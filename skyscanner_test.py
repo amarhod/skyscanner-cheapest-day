@@ -26,8 +26,13 @@ def days_difference(start_date, end_date):
         start_date  = datetime.datetime.strptime(start_date, '%Y-%m-%dT%H:%M:%S')
         end_date  = datetime.datetime.strptime(end_date,'%Y-%m-%dT%H:%M:%S' )
         days_between = end_date - start_date
-        #print(days_between)
-        return days_between
+        print(days_between)
+        days = str(days_between).split(",")
+        if len(days)>1:
+            return days_between
+        else:
+            return str("1 days")
+       
     except:
         print("Failed to calculate days between")
 
@@ -65,14 +70,15 @@ def main():
         print(f"\n\nFLIGHTS FROM {origin} TO {destination}\n")
         for quote in quotes:
             #departure_date = datetime.datetime.strptime(quote['OutboundLeg']['DepartureDate'],'%Y-%m-%dT%H:%M:%S')
-            departure_date = quote['OutboundLeg']['DepartureDate']
-            time_to_departure = days_difference(time, departure_date)
-            min_price = quote['MinPrice']
-            print("Date: " + departure_date)
-            print("Lowest price: " + str(min_price))
-            print("Carrier: " + carrier_id_to_name(carriers, quote['OutboundLeg']['CarrierIds'][0]))
-            print("Days to departure: " + str(time_to_departure) + '\n')            
-        sleep(5)
+            if quote['Direct']:
+                departure_date = quote['OutboundLeg']['DepartureDate']
+                time_to_departure = days_difference(time, departure_date)
+                min_price = quote['MinPrice']
+                print("Date: " + departure_date)
+                print("Lowest price: " + str(min_price))
+                print("Carrier: " + carrier_id_to_name(carriers, quote['OutboundLeg']['CarrierIds'][0]))
+                print("Days to departure: " + str(time_to_departure) + '\n')            
+                sleep(5)
 
 if __name__ == "__main__":
     main()
