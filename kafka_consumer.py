@@ -4,7 +4,7 @@ from json import loads
 
 def main():
     consumer = KafkaConsumer(
-    'numtest',
+    'skyscanner_test',
      bootstrap_servers=['localhost:9092'],
      auto_offset_reset='earliest',
      enable_auto_commit=True,
@@ -13,7 +13,8 @@ def main():
 
     for message in consumer:
         message = message.value
-        print('Consumed message: {}'.format(message))
+        print(f"Consumed message: {message}"))
+
 
 if __name__ == "__main__":
     main()
