@@ -1,20 +1,32 @@
-from kafka import KafkaConsumer
+from time import sleep
 from json import loads
+from pyspark import SparkContext, SparkConf
+from pyspark.streaming import StreamingContext
+from pyspark.streaming.kafka import KafkaUtils
 
+
+TOPIC = "skyscanner_test"
+SEC = 30
 
 def main():
-    consumer = KafkaConsumer(
-    'skyscanner_test',
-     bootstrap_servers=['localhost:9092'],
-     auto_offset_reset='earliest',
-     enable_auto_commit=True,
-     group_id='my-group',
-     value_deserializer=lambda x: loads(x.decode('utf-8')))
+    conf = SparkConf().setAppName("KafkaSkyscanner").setMaster("local[*]")
+    sc = SparkContext(conf=conf)
+    ssc = StreamingContext(sc, SEC)
+    params = {
+                'bootstrap.servers':'localhost:9092',
+                'group.id':'skyscanner-group', 
+                'fetch.message.max.bytes':'15728640',
+                'auto.offset.reset':'largest'
+                }
 
-    for message in consumer:
-        message = message.value
-        print(f"Consumed message: {message}"))
+    kafka_stream = KafkaUtils.createDirectStream(ssc, [TOPIC], params)
+    kafka_stream = kafka_stream.map(lambda x: loads(x[1]))
+    kafka_stream.pprint()
 
+    ssc.start()
+    # Run stream for at least 10 minutes to prevent termination between message production
+    sleep(600) 
+    ssc.stop(stopSparkContext=True,stopGraceFully=True)
 
 if __name__ == "__main__":
     main()

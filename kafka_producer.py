@@ -3,6 +3,7 @@ from json import dumps
 from kafka import KafkaProducer
 from skyscanner_consumer import get_route_messages
 
+MIN = 1
 
 def main():
     producer = KafkaProducer(bootstrap_servers=['localhost:9092'],
@@ -12,10 +13,10 @@ def main():
         list_of_messages = get_route_messages()
         for message in list_of_messages:
             producer.send('skyscanner_test', value=message)
-            sleep(3)
+            sleep(1)
         print(f"Produced {len(list_of_messages)} messages to Kafka topic: skyscanner_test")
         print("sleeping...")
-        sleep(60*1)
+        sleep(60*MIN)
         print("waking up")
 
     

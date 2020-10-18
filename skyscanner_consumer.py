@@ -67,46 +67,27 @@ def get_route_messages():
         carriers = quotes_json['Carriers']
         time = time_now()
         list_of_route_messages = []
-        print(f'\nFLIGHTS FROM {origin} TO {destination}\n')
 
         for quote in quotes:
             message = {}
             if quote['Direct']:
                 departure_date = quote['OutboundLeg']['DepartureDate']
                 days_to_departure = days_delta(time, departure_date)
-                min_price = quote['MinPrice']
+                min_price = int(quote['MinPrice'])
+                message['query_date'] = time.split('T')[0]
                 message['days_to_departure'] = days_to_departure
+                message['origin'] = origin
+                message['destination'] = destination
                 message['min_price'] = min_price
-                message['carrier'] = carrier_id_to_name(carriers, quote['OutboundLeg']['CarrierIds'][0])      
-                message['query_time'] = time
                 list_of_route_messages.append(message)
         sleep(5)
     return list_of_route_messages
 
 
 def main():
-    origin = 'ATL-sky'
-    for destination in DESTINATION_AIRPORTS_US:
-        response = get_flight_info(origin=origin, destination=destination)
-        if(response == 'FAILED'):
-            continue
-        quotes_json = json.loads(response)
-        quotes = quotes_json['Quotes']
-        carriers = quotes_json['Carriers']
-        time = time_now()
-        list_of_route_messages = []
-        print(f'\n\nFLIGHTS FROM {origin} TO {destination}\n')
-        for quote in quotes:
-            if quote['Direct']:
-                departure_date = quote['OutboundLeg']['DepartureDate']
-                time_to_departure = days_delta(time, departure_date)
-                min_price = quote['MinPrice']
-                print('Date: ' + departure_date)
-                print('Lowest price: ' + str(min_price))
-                print('Carrier: ' + carrier_id_to_name(carriers, quote['OutboundLeg']['CarrierIds'][0]))
-                print('Days to departure: ' + str(time_to_departure) + '\n')            
-        sleep(5)        
+    list_of_routes = get_route_messages()
+    for route in list_of_routes:
+        print(route)      
         
-
 if __name__ == '__main__':
     main()
