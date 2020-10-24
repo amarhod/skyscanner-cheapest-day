@@ -67,18 +67,21 @@ def get_route_messages():
         carriers = quotes_json['Carriers']
         time = time_now()
         list_of_route_messages = []
+       
 
         for quote in quotes:
             message = {}
             if quote['Direct']:
                 departure_date = quote['OutboundLeg']['DepartureDate']
                 days_to_departure = days_delta(time, departure_date)
-                min_price = int(quote['MinPrice'])
+                min_price = float(quote['MinPrice'])
                 message['query_date'] = time.split('T')[0]
                 message['days_to_departure'] = days_to_departure
                 message['origin'] = origin
                 message['destination'] = destination
                 message['min_price'] = min_price
+                message['unique_count'] = 1
+                message['cached_timestamp'] = quote['QuoteDateTime']
                 list_of_route_messages.append(message)
         sleep(5)
     return list_of_route_messages
