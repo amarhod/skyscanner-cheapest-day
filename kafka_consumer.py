@@ -8,6 +8,7 @@ from cassandra.cluster import Cluster
 TOPIC = "skyscanner_test"
 KEYSPACE = "skyscanner_test"
 SEC = 30
+
 def weighted_average(new_price, old_price, count):
     return (float((count * old_price) + new_price)/(count + 1))
 
@@ -21,6 +22,8 @@ def save_to_cassandra(session, rdd):
         unique_count = message['unique_count']
         cached_timestamp = message['cached_timestamp']
         query_date = message['query_date']
+
+        #Before inserting, search to see if there already exists an entry for the route and query date
         query = session.execute(
         """
         SELECT * FROM quotes WHERE query_date=%s AND
@@ -29,6 +32,8 @@ def save_to_cassandra(session, rdd):
                     destination=%s
         """,
         (message['query_date'],message['days_to_departure'],message['origin'],message['destination']))
+
+        #If the cached (price) timestamp is newer, set minimum price to be the new avarage 
         for row in query:
             old_min_price = row.min_price
             old_unique_count = row.unique_count
@@ -37,6 +42,7 @@ def save_to_cassandra(session, rdd):
                 print("Updating existing row")
                 min_price = weighted_average(min_price, old_min_price, old_unique_count)
                 unique_count = old_unique_count + 1
+        
         session.execute(
         """
         INSERT INTO quotes (query_date,
