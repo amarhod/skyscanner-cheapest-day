@@ -3,7 +3,7 @@ Analyzes the best time point to buy flight tickets on Skyscanner. Developed in c
 
 ## Code functionality 
 - **skyscanner_consumer** - Queries the Skyscanner Flight Search API for a number of routes and receives the minimum price for each route across multiple days. Useful information (e.g. cached timestamp, minimum price, origin, destination etc) for each route and date gets stored in a list.
-- **kafka producer** - Calls skyscanner_consumer and produces each message in the list to a Kafka topic.
+- **kafka_producer** - Calls skyscanner_consumer and produces each message in the list to a Kafka topic.
 - **kafka_consumer** - Consumes each message from the Kafka topic and UPSERTs it into a Cassandra table.
 - **analyzer** - Calculates the best day before departure, to buy a ticket, for a given range (e.g. 1-30 days). By querying the Cassandra table and calculating the best day for each route, the day that occures most frequent across all routes is found and printed.
   
